@@ -20,13 +20,15 @@ public class Scheduler {
     Collections.sort(players);				//sort players by seed
     
     int format;
-    if (entrants < 3) {
+    if (entrants < 3) {     //exclude double elim (only supports more than 2 entrants)
       System.out.println("\nWhich tournament format would you like to use?\n1. Round Robin\n2. Swiss\n3. Single Elimination");
       format = valInt(input, 1, 3);
-    } else {
+    } else {    //entrants >= 3
       System.out.println("\nWhich tournament format would you like to use?\n1. Round Robin\n2. Swiss\n3. Single Elimination\n4. Double Elimination");
       format = valInt(input, 1, 4);
     }
+    
+    //indicate which tournament format to use
     System.out.println();
     if (format == 1)
       roundRobin(players);
@@ -38,17 +40,17 @@ public class Scheduler {
       doubleElim(players);
   }
   
-  //validate integer input with a given range
+  //validate integer input within a given range (min to max inclusive)
   public static int valInt(Scanner input, int min, int max) {
-    boolean check = true;
-    int num = -1;
+    boolean check = true; //boolean for try/catch block
+    int num = -1;         //initialize num with placeholder
     do {
       try {
         num = input.nextInt();
-        if (num < min || num > max)
+        if (num < min || num > max)   //if num is out of range
           throw new NumberFormatException("Input is out of range.");
-        else
-          check = false;
+        else              //num is in range
+          check = false;  //exit loop
       }
       catch (Exception e) {
         System.out.println("Please choose a valid option.");
@@ -62,12 +64,12 @@ public class Scheduler {
   
   //single elimination tournament
   public static void singleElim(LinkedList<Player> players) {
-  	LinkedList<Player> results = new LinkedList<Player>();				//player placings to be updated as matches end
-  	int entrants = players.size();										//number of entrants
-  	Scanner input = new Scanner(System.in);								//scanner to read match results
+  	LinkedList<Player> results = new LinkedList<Player>();  //player placings to be updated as matches end
+  	int entrants = players.size();								//number of entrants
+  	Scanner input = new Scanner(System.in);				//scanner to read match results
   	
-  	if ((entrants & (entrants - 1)) != 0) {					//check if # of entrants is not a power of 2
-  		int i = 2;											//power of 2 variable
+  	if ((entrants & (entrants - 1)) != 0) {			//check if # of entrants is not a power of 2
+  		int i = 2;											          //i = sequential powers of 2
   		while(true) {
   			if (Math.pow(2, i) > entrants)					//2^i is nearest superior power of 2
   				break;
@@ -97,11 +99,11 @@ public class Scheduler {
   			
   			//update loser's placement
   			int place = (int)Math.pow(2, 32 - Integer.numberOfLeadingZeros(entrants - results.size() - 1) - 1) + 1;	//nearest lower power of 2, + 1
-  			m.getLoser().setPlace(place);					//sets player's placement in the tournament
-  			results.addFirst(m.getLoser());					//adds player to the front of results list to keep it sorted by higher placement
+  			m.getLoser().setPlace(place);				//sets player's placement in the tournament
+  			results.addFirst(m.getLoser());			//adds player to the front of results list to keep it sorted by higher placement
   		}
   	}
-  	results.addFirst(players.pollFirst());				//adds winner of tournament to front of results list
+  	results.addFirst(players.pollFirst());	//adds winner of tournament to front of results list
   	
   	displayElimResults(results);						//displays final results
   }
@@ -114,10 +116,10 @@ public class Scheduler {
   	int entrants = winners.size();										//number of entrants
   	Scanner input = new Scanner(System.in);						//scanner to read match results
   	
-  	if ((entrants & (entrants - 1)) != 0) {					//check if # of entrants is not a power of 2
-  		int i = 2;											//power of 2 variable
+  	if ((entrants & (entrants - 1)) != 0) {		//check if # of entrants is not a power of 2
+  		int i = 2;											        //i = sequential powers of 2
   		while(true) {
-  			if (Math.pow(2, i) > entrants)					//2^i is nearest superior power of 2
+  			if (Math.pow(2, i) > entrants)				//2^i is nearest superior power of 2
   				break;
   			else											//2^i is still less than number of entrants
   				i++;
@@ -130,7 +132,7 @@ public class Scheduler {
   	}
   	
   	LinkedList<Match> round = new LinkedList<Match>();  //round is list of matches
-  	boolean winRnd = false;           //binary switch, if true then play winners round & losers round, if false then only losers round
+  	boolean winRnd = false;           //boolean switch, if true then play winners round & losers round, if false then only losers round
   	int w = 0;      //winners bracket plays first two rounds, so extra variable to bypass the first "false" of winRnd
   	while(winners.size() + losers.size() > 2) {       //if there are multiple players left in either bracket,
   	  int winMtc = 0;     //number of winners matches
@@ -146,7 +148,7 @@ public class Scheduler {
   	  }
   	  System.out.println(round);
   	  
-  	  for (int i = 0; i < winMtc; i++) {      //score winners bracket matches
+  	  for (int i = 0; i < winMtc; i++) {  //score winners bracket matches
   	    Match m = round.pollFirst();      //match to be scored
   	    winners.addLast(m.setResults(input.nextInt()));   //set results of the match, 1 = p1 win and 0 = p2 win
   	    losers.addLast(m.getLoser());     //add loser of match to losers bracket
@@ -217,7 +219,7 @@ public class Scheduler {
   		System.out.println(round);							//display the matches in the current round
   		
   		for (int j = 0; j < entrants / 2; j++) {
-  			Match m = round.pollFirst();			//the match to be scored
+  			Match m = round.pollFirst();			  //the match to be scored
   			m.setResults(input.nextInt());			//set results of the match, 1 = p1 win and 0 = p2 win
   		}
   		
@@ -232,7 +234,7 @@ public class Scheduler {
   	Scanner input = new Scanner(System.in);
   	int entrants = players.size();
   	
-  	if (entrants % 2 != 0) {						//number of entrants is odd
+  	if (entrants % 2 != 0) {			//number of entrants is odd
   		entrants++;									//increment number of entrants
   		players.add(new Player("bye", entrants));	//add a dummy player
   	}
@@ -249,48 +251,46 @@ public class Scheduler {
   			m.setResults(input.nextInt());
   			m.getWinner().history.add(m.getLoser());
   			m.getLoser().history.add(m.getWinner());
-  			//players.addFirst(m.getWinner());
-  			//players.addLast(m.getLoser());
   		}
   	}
   	
   	displayRRResults(players);
   }
   
+  //swiss pairing algorithm
   public static LinkedList<Match> swissPair(LinkedList<Player> players) {
-    LinkedList<Player> temp = new LinkedList<Player>(players);
-    LinkedList<Player> unpaired = new LinkedList<Player>();
-    LinkedList<Match> round = new LinkedList<Match>();
+    LinkedList<Player> temp = new LinkedList<Player>(players);  //copy of players LinkedList
+    LinkedList<Player> unpaired = new LinkedList<Player>();     //unpaired players
+    LinkedList<Match> round = new LinkedList<Match>();          //round of matches
     boolean back = false;
     String tag = null;  //used for backtracking, indicates previously unpaired player
     do {
       while(!temp.isEmpty()) {
         Player p1 = temp.pollFirst();
         Player p2 = null;
-        if (p1.getTag().equals(tag)) {
-          p2 = temp.peekFirst();  //CREATE ITERATOR, USE THE FIRST ONE THAT HASN'T PLAYED P1; ISSUES WITH 18 ENTRANTS
-        } else {
+        if (p1.getTag().equals(tag)) {    //if p1 is marked player (after backtrack), 
+          p2 = temp.peekFirst();          //p2 is highest seeded remaining player in list
+        } else {            //either no backtracking yet or p1 is not marked player
           Iterator<Player> desc = temp.descendingIterator();
           boolean exit = false;
           while(desc.hasNext() && !exit) {
             p2 = desc.next();
-            if (p1.getWin() == p2.getWin() && p1.history.indexOf(p2) == -1) {
-              exit = true;
-            } else {
-              p2 = null;
+            if (p1.getWin() == p2.getWin() && p1.history.indexOf(p2) == -1) { //if p1 and p2 have same win count but haven't played before
+              exit = true;  //exit loop, p2 is specified player
+            } else {        //p1 & p2 have different win count or have played before
+              p2 = null;    //do not pair the specified player
             }
           }
         }
-        if (p2 != null) {
+        if (p2 != null) {   //if p2 is specified
           p2 = temp.remove(temp.indexOf(p2));
-          round.add(new Match(p1, p2));
-          System.out.println("pair successful " + p1 + " " + p2);
-        } else {
-          unpaired.add(p1);
+          round.add(new Match(p1, p2));   //pair p1 and p2
+        } else {            //p2 == null
+          unpaired.add(p1); //add p1 to unpaired
         }
       }
-      if (tag != null)
-        back = false;
+      if (tag != null)    //if already backtracked once,
+        back = false;     //don't backtrack again
       while(!unpaired.isEmpty() && !back) {
         Player p1 = unpaired.pollFirst();
         Player p2 = null;
@@ -298,21 +298,21 @@ public class Scheduler {
         boolean exit = false;
         while(it.hasNext() && !exit) {
           p2 = it.next();
-          if (p1.history.indexOf(p2) == -1) {
-            exit = true;
-          } else {
-            p2 = null;
+          if (p1.history.indexOf(p2) == -1) {   //if p1 and p2 haven't played
+            exit = true;        //exit loop, p2 is specified player
+          } else {              //p1 and p2 have played
+            p2 = null;          //do not pair specified player
           }
         }
-        if (p2 == null) {
-          back = true;
-          unpaired.clear();
-          round.clear();
-          temp = new LinkedList<Player>(players);
-          tag = p1.getTag();
-        } else {
+        if (p2 == null) {     //if p2 is unspecified
+          back = true;          //set algorithm to backtrack
+          unpaired.clear();     //reset unpaired list
+          round.clear();        //reset round
+          temp = new LinkedList<Player>(players);   //reset temp list
+          tag = p1.getTag();    //mark player that caused backtrack
+        } else {              //p2 is specified
           p2 = unpaired.remove(unpaired.indexOf(p2));
-          round.add(new Match(p1, p2));
+          round.add(new Match(p1, p2)); //pair p1 and p2
         }
       }
     } while(back);
